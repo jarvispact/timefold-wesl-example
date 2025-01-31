@@ -1,0 +1,23 @@
+{
+  "name": "timefold-wesl-example",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 9091",
+    "build": "tsc && vite build",
+    "preview": "vite preview --port 9092"
+  },
+  "devDependencies": {
+    "@webgpu/types": "^0.1.53",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.5"
+  },
+  "dependencies": {
+    "@timefold/ecs": "^0.0.2",
+    "@timefold/engine": "^0.0.2",
+    "@timefold/math": "^0.0.2",
+    "@timefold/webgpu": "^0.0.4",
+    "wgsl-linker": "^0.5.0-d1"
+  }
+}
