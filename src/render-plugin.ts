@@ -4,13 +4,16 @@ import { cubeVertices, stride } from "./cube";
 import { world, World } from "./world";
 import { EntityUniformGroup, SceneUniformGroup, Vertex } from "./timefold-generated-wgsl";
 import { getShaderModule } from "./wesl";
+import { makeWeslDevice } from "wesl";
 
 export const createRenderPlugin = async (canvas: HTMLCanvasElement) => {
   const { context, device, format } = await WebgpuUtils.createDeviceAndContext({
     canvas,
   });
+  const weslDevice = makeWeslDevice(device);
+
   const { layout, createBindGroups } = WebgpuUtils.createPipelineLayout({
-    device,
+    device: weslDevice,
     uniformGroups: [SceneUniformGroup, EntityUniformGroup],
   });
 
@@ -18,14 +21,14 @@ export const createRenderPlugin = async (canvas: HTMLCanvasElement) => {
     scene: WebgpuUtils.createBufferDescriptor(),
   });
 
-  const vertexBuffer = device.createBuffer({
+  const vertexBuffer = weslDevice.createBuffer({
     label: "vertex buffer vertices",
     size: cubeVertices.buffer.byteLength,
     usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
   });
 
   const vertexCount = cubeVertices.length / stride;
-  device.queue.writeBuffer(vertexBuffer, 0, cubeVertices.buffer);
+  weslDevice.queue.writeBuffer(vertexBuffer, 0, cubeVertices.buffer);
 
   const renderPassDescriptor: RenderPassDescriptor = {
     label: "canvas renderPass",
@@ -36,9 +39,9 @@ export const createRenderPlugin = async (canvas: HTMLCanvasElement) => {
     ],
   };
 
-  const module = await getShaderModule(device);
+  const module = await getShaderModule(weslDevice);
 
-  const pipeline = device.createRenderPipeline({
+  const pipeline = weslDevice.createRenderPipeline({
     label: "pipeline",
     layout,
     primitive: { cullMode: "back" },
@@ -76,23 +79,23 @@ export const createRenderPlugin = async (canvas: HTMLCanvasElement) => {
       .getCurrentTexture()
       .createView();
 
-    const encoder = device.createCommandEncoder();
+    const encoder = weslDevice.createCommandEncoder();
     const pass = encoder.beginRenderPass(renderPassDescriptor);
 
     pass.setPipeline(pipeline);
     pass.setVertexBuffer(0, vertexBuffer);
 
     pass.setBindGroup(0, scene.bindGroup);
-    device.queue.writeBuffer(scene.buffers.scene, 0, sceneCreateResult.buffer);
+    weslDevice.queue.writeBuffer(scene.buffers.scene, 0, sceneCreateResult.buffer);
 
     for (const item of query) {
       pass.setBindGroup(1, item.bindGroup);
-      device.queue.writeBuffer(item.buffer, 0, item.data);
+      weslDevice.queue.writeBuffer(item.buffer, 0, item.data);
       pass.draw(vertexCount);
     }
 
     pass.end();
-    device.queue.submit([encoder.finish()]);
+    weslDevice.queue.submit([encoder.finish()]);
   };
 
   const RenderSystem = createSystem({ stage: "render", fn: render });
