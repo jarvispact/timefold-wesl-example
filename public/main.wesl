@@ -1,24 +1,8 @@
-import { Structs } from "@timefold/engine";
-import { Uniform, WebgpuUtils } from "@timefold/webgpu";
+import package::vertex::{Vertex};
+import package::uniforms::{Scene, Entity};
 
-export const SceneUniformGroup = Uniform.group(0, {
-    scene: Uniform.buffer(0, Structs.Scene),
-});
-
-export const EntityUniformGroup = Uniform.group(1, {
-    entity: Uniform.buffer(0, Structs.PhongEntity),
-});
-
-export const Vertex = WebgpuUtils.createVertexBufferLayout('interleaved', {
-    position: { format: 'float32x3', offset: 0 },
-    uv: { format: 'float32x2', offset: 5 },
-    normal: { format: 'float32x3', offset: 3 },
-});
-
-export const uniformsWgsl = Uniform.getWgslFromGroups([SceneUniformGroup, EntityUniformGroup]);
-
-export const shaderCode = /* wgsl */ `
-${Vertex.wgsl}
+@group(0) @binding(0) var<uniform> scene: Scene;
+@group(1) @binding(0) var<uniform> entity: Entity;
  
 struct VSOutput {
   @builtin(position) position: vec4f,
@@ -26,8 +10,6 @@ struct VSOutput {
   @location(1) normal: vec3f,
   @location(2) world_pos: vec3f,
 };
-
-${Uniform.getWgslFromGroups([SceneUniformGroup, EntityUniformGroup])}
 
 @vertex fn vs(
   vert: Vertex
@@ -51,7 +33,7 @@ ${Uniform.getWgslFromGroups([SceneUniformGroup, EntityUniformGroup])}
 
     var lighting = vec3f(0.0, 0.0, 0.0);
 
-    for (var i = 0; i < ${Structs.MAX_DIR_LIGHTS}; i++) {
+    for (var i = 0; i < 3; i++) {
         let L = normalize(scene.dirLights[i].direction);
 
         let diff = max(dot(N, L), 0.0);
@@ -67,4 +49,3 @@ ${Uniform.getWgslFromGroups([SceneUniformGroup, EntityUniformGroup])}
 
     return vec4f(ambient + lighting, entity.material.opacity);
 }
-`.trim();

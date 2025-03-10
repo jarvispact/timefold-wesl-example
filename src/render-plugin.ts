@@ -2,15 +2,13 @@ import { createPlugin, createSystem } from "@timefold/ecs";
 import { RenderPassDescriptor, WebgpuUtils } from "@timefold/webgpu";
 import { cubeVertices, stride } from "./cube";
 import { world, World } from "./world";
-import { EntityUniformGroup, SceneUniformGroup, Vertex } from "./shader";
-import { getFinalWgsl } from "./wesl";
+import { EntityUniformGroup, SceneUniformGroup, Vertex } from "./timefold-generated-wgsl";
+import { getShaderModule } from "./wesl";
 
 export const createRenderPlugin = async (canvas: HTMLCanvasElement) => {
   const { context, device, format } = await WebgpuUtils.createDeviceAndContext({
     canvas,
   });
-  const module = device.createShaderModule({ code: getFinalWgsl() });
-
   const { layout, createBindGroups } = WebgpuUtils.createPipelineLayout({
     device,
     uniformGroups: [SceneUniformGroup, EntityUniformGroup],
@@ -37,6 +35,8 @@ export const createRenderPlugin = async (canvas: HTMLCanvasElement) => {
       ),
     ],
   };
+
+  const module = await getShaderModule(device);
 
   const pipeline = device.createRenderPipeline({
     label: "pipeline",
