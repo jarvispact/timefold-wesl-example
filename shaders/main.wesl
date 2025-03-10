@@ -1,5 +1,5 @@
-import package::vertex::{Vertex};
-import package::uniforms::{Scene, Entity};
+import vertex::{Vertex};
+import uniforms::{Scene, Entity};
 
 @group(0) @binding(0) var<uniform> scene: Scene;
 @group(1) @binding(0) var<uniform> entity: Entity;
