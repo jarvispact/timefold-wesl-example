@@ -9,9 +9,11 @@
     "preview": "vite preview --port 9092"
   },
   "devDependencies": {
+    "@types/node": "^22.13.10",
     "@webgpu/types": "^0.1.53",
     "typescript": "~5.6.2",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "wesl-plugin": "^0.6.0-pre8"
   },
   "dependencies": {
     "@timefold/ecs": "^0.0.2",
