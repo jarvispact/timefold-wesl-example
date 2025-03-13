@@ -1,2 +1,0 @@
-weslFiles = [ "shaders/**/*.wesl" ]
-weslRoot = "shaders"
