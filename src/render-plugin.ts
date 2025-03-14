@@ -2,7 +2,7 @@ import { createPlugin, createSystem } from "@timefold/ecs";
 import { RenderPassDescriptor, WebgpuUtils } from "@timefold/webgpu";
 import { cubeVertices, stride } from "./cube";
 import { world, World } from "./world";
-import { EntityUniformGroup, SceneUniformGroup, Vertex } from "./timefold-generated-wgsl";
+import { EntityUniformGroup, SceneUniformGroup, Vertex } from "./timefold";
 import { getShaderModule } from "./wesl";
 import { makeWeslDevice } from "wesl";
 
